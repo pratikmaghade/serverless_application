@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #2980b9, #2c3e50); /* Gradient background */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #fff; /* Text color */
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: calc(100% - 10px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .action-button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Add Product:</h2>
+
+    <form id="productForm">
+        <label for="productCode">Product Code:</label>
+        <input type="text" id="productCode" required>
+
+        <label for="price">Price:</label>
+        <input type="number" id="price" required>
+
+        <button type="button" onclick="addProduct()">Add Product</button>
+    </form>
+
+    <h2>Product List:</h2>
+
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Product Code</th>
+                <th>Price</th>
+                <th>Created At</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="productTableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchProducts();
+    });
+
+    function addProduct() {
+        var productCode = document.getElementById('productCode').value;
+        var price = document.getElementById('price').value;
+
+        var data = {
+            operation: 'addProduct',
+            productCode: productCode,
+            price: price
+        };
+
+        fetch('https://arkv5247u7.execute-api.ap-south-1.amazonaws.com/dev2/getData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(result => {
+            alert(JSON.parse(result.body));
+
+            // Clear form fields
+            document.getElementById('productCode').value = '';
+            document.getElementById('price').value = '';
+
+            // Refresh product table
+            fetchProducts();
+        })
+        .catch(error => {
+            console.error('Error adding product:', error);
+        });
+    }
+
+    function fetchProducts() {
+        var requestData = {
+           operation: 'listProduct'
+        };
+
+        fetch('https://arkv5247u7.execute-api.ap-south-1.amazonaws.com/dev2/getData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+        .then(response => response.json())
+        .then(responseData => {
+            const products = JSON.parse(responseData.body);
+
+            // Clear existing table rows
+            var tableBody = document.getElementById('productTableBody');
+            tableBody.innerHTML = '';
+
+            // Update product table
+            products.forEach(product => {
+                updateProductTable(product);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching products:', error);
+        });
+    }
+
+    function updateProductTable(product) {
+        var tableBody = document.getElementById('productTableBody');
+        var row = tableBody.insertRow();
+
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+
+        cell1.textContent = product.productCode;
+        cell2.textContent = product.price;
+        cell3.textContent = product.createdAt;
+
+        var actionButton = document.createElement('button');
+        actionButton.textContent = 'Action';
+        actionButton.classList.add('action-button');
+        actionButton.onclick = function() {
+            // Add your action here
+            alert('Perform action for ' + product.productCode);
+        };
+
+        cell4.appendChild(actionButton);
+    }
+</script>
+
+</body>
+</html>
