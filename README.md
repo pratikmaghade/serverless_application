@@ -25,3 +25,7 @@ Use the provided form to add new products.
 View the updated list of products in the table below.
 Contributing:
 Contributions to this project are welcome! If you find any bugs or have suggestions for improvements, please open an issue or submit a pull request.
+
+
+Replace YOUR_API_GATEWAY_URL with your actual Amazon API Gateway URL in the index.html file.
+
